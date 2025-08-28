@@ -157,7 +157,6 @@ end
 
 create_file_if_missing(filepath)
 
-create_file_if_missing("test.txt")
 vim.api.nvim_create_autocmd("VimLeave", {
 	callback = save_cwd
 })
