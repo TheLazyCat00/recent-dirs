@@ -1,7 +1,8 @@
 local M = {}
 
+local filepath = vim.fn.stdpath("data") .. "/recent-dirs"
+
 local function save_cwd()
-	local filepath = vim.fn.stdpath("data") .. "/recent-dirs"
 	local lines = vim.fn.readfile(filepath)
 
 	local cwd = vim.fn.getcwd():gsub("\\", "/")
@@ -21,9 +22,7 @@ end
 ---@return snacks.picker.Config
 local function recent_dirs()
 	return {
-
 		finder = function ()
-			local filepath = vim.fn.stdpath("data") .. "/recent-dirs"
 			local lines = vim.fn.readfile(filepath)
 
 			local items = {}
@@ -59,7 +58,6 @@ local function recent_dirs()
 				local done = {}
 				local deleted = {}
 
-				local filepath = vim.fn.stdpath("data") .. "/recent-dirs"
 				local lines = vim.fn.readfile(filepath)
 				table.remove(lines, item.idx)
 				vim.fn.writefile(lines, filepath)
@@ -96,7 +94,6 @@ local function recent_dirs()
 end
 
 function M.open_buffer(idx)
-	local filepath = vim.fn.stdpath("data") .. "/recent-dirs"
 	local lines = vim.fn.readfile(filepath)
 	if lines[idx] then
 		local line = lines[idx]
@@ -124,7 +121,6 @@ function M.open_buffer(idx)
 end
 
 function M.open_dir(idx)
-	local filepath = vim.fn.stdpath("data") .. "/recent-dirs"
 	local lines = vim.fn.readfile(filepath)
 	if lines[idx] then
 		local line = lines[idx]
@@ -145,6 +141,23 @@ end
 function M.setup()
 end
 
+local function create_file_if_missing(path)
+	local f = io.open(path, "r")
+	if f == nil then
+		f = io.open(path, "w")
+		if f then
+			f:close()
+		else
+			vim.notify("Failed to create file: " .. path, "error")
+		end
+	else
+		f:close()
+	end
+end
+
+create_file_if_missing(filepath)
+
+create_file_if_missing("test.txt")
 vim.api.nvim_create_autocmd("VimLeave", {
 	callback = save_cwd
 })
