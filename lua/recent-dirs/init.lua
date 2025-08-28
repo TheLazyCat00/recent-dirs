@@ -141,17 +141,29 @@ end
 function M.setup()
 end
 
-local function create_file_if_missing(path)
-	local f = io.open(path, "r")
-	if f == nil then
-		f = io.open(path, "w")
-		if f then
-			f:close()
-		else
-			vim.notify("Failed to create file: " .. path, "error")
+local uv = vim.uv
+
+--- Ensure a file exists, creating parent dirs and optionally initializing it
+--- @param path string: Full path to the file
+--- @param init_content string|nil: Optional content for initialization
+local function create_file_if_missing(path, init_content)
+	init_content = init_content or ""
+
+	-- Ensure parent directory exists
+	local dir = vim.fn.fnamemodify(path, ":h")
+	if uv.fs_stat(dir) == nil then
+		vim.fn.mkdir(dir, "p")
+	end
+
+	-- Create file if it doesn’t exist
+	if uv.fs_stat(path) == nil then
+		local fd, err = uv.fs_open(path, "w", 420)
+		if not fd then
+			vim.notify("Failed to create file: " .. path .. " (" .. err .. ")", vim.log.levels.ERROR)
+			return
 		end
-	else
-		f:close()
+		uv.fs_write(fd, init_content)
+		uv.fs_close(fd)
 	end
 end
 
