@@ -99,9 +99,13 @@ function M.open_buffer(idx)
 		local line = lines[idx]
 
 		local path = line:match("(.-)")
-		local buffer = line:match("(.*)")
+		local file = line:match("(.*)")
+		if file == nil or file == "" then
+			vim.notify("No file associated with this directory", vim.log.levels.WARN)
+			return
+		end
 		vim.fn.chdir(path)
-		vim.cmd("edit " .. buffer)
+		vim.cmd("edit " .. file)
 
 		local bufs = vim.api.nvim_list_bufs()
 		for _, bufnr in ipairs(bufs) do
