@@ -100,11 +100,12 @@ function M.open_buffer(idx)
 
 		local path = line:match("(.-)")
 		local file = line:match("(.*)")
+		vim.fn.chdir(path)
+
 		if file == nil or file == "" then
 			vim.notify("No file associated with this directory", vim.log.levels.WARN)
 			return
 		end
-		vim.fn.chdir(path)
 		vim.cmd("edit " .. file)
 
 		local bufs = vim.api.nvim_list_bufs()
